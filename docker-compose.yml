@@ -6,5 +6,5 @@ services:
       context: .
       dockerfile: Dockerfile
     image: jellyfin-tubearchivist-sync:latest
-    container_name: jellyfin-tubearchivist-sync
+    container_name: jellyfintubesync
     restart: "no"
