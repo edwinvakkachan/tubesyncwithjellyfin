@@ -8,3 +8,11 @@ services:
     image: jellyfin-tubearchivist-sync:latest
     container_name: jellyfintubesync
     restart: "no"
+    environment:
+      IP: ${IP}
+      APIjelly: ${APIjelly}
+      JELLYFIN_USER_ID: ${JELLYFIN_USER_ID}
+      IPtube: ${IPtube}
+      APItube: ${APItube}
+
+
