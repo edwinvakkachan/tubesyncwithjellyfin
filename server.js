@@ -22,7 +22,8 @@ async function delay(ms) {
 
 // marking jellyfin to tubearechivist
 async function checkwatched(id){
-  const res = await axios.get(`${ipTube}/api/video/${id}/`,{
+try {
+    const res = await axios.get(`${ipTube}/api/video/${id}/`,{
 headers: {
           Authorization: `Token ${apiTube}`,
           "Content-Type": "application/json"
@@ -30,7 +31,12 @@ headers: {
   })
 
 return res.data.player.watched
+} catch (error) {
+  console.log('error in checkwatched',error)
 }
+}
+
+
 async function markTubeWatched(jellyId){
   for (const id of jellyId){
     if(await checkwatched(id)){
@@ -102,7 +108,8 @@ const idArray = [];
 //--------------------------------------
 
 async function tubearchivistWatchedDetails(){
-  const youtubeid=[];
+  try {
+    const youtubeid=[];
   const res = await axios.get(`${ipTube}/api/video/`, {
     headers: {
           Authorization: `Token ${apiTube}`,
@@ -127,33 +134,13 @@ async function tubearchivistWatchedDetails(){
 
 
 return youtubeid;
+  } catch (error) {
+    console.error('error in tubearchivistWatchedDetails',error)
+  }
 
 }
 
-// async function tubearchivistMarkingWatched(youtubeId){
 
-//   for (const id of youtubeId){
-// try {
-//    const res=await axios.post(`${ipTube}/api/watched/`,
-//          {
-//           id: id,
-//           is_watched: true
-//         },
-//         {
-//           headers: {
-//             Authorization: `Token ${apiTube}`,
-//             "Content-Type": "application/json"
-//           }
-//         })
-
-// } catch (error) {
-//   console.error(error)
-// } 
-// await delay(300); 
-//   }
-
-
-// }
 async function pathContainsYoutubeId(path, youtubeId) {
   if (!path || !youtubeId) return false;
 
@@ -162,12 +149,17 @@ async function pathContainsYoutubeId(path, youtubeId) {
 }
 
 async function jellyfinMarkAsWatched(itemId) {
-  await axios.post(
+  try {
+    await axios.post(
     `${ip}/Users/18c88a40709b4222baa0eab02c68efe8/PlayedItems/${itemId}`,{},{
       headers: { "X-Emby-Token": api },
     });
 
      console.log("✅ Marked as watched:", itemId);
+  } catch (error) {
+    console.error('error in jellyfinMArkAsWatched',error)
+  }
+  
 }
 
 
@@ -200,6 +192,7 @@ for (const value of res.data.Items){
 }
 
 async function main(){
+  try {
     console.log('started wait for 10sec ✅')
  const jellyfinWatchedyoutubeId =await jellyfinWatchedDetails();
 await markTubeWatched(jellyfinWatchedyoutubeId);
@@ -211,6 +204,10 @@ const tubearchivistWatchedYoutubeid = await tubearchivistWatchedDetails();
 
 await findJellyfinItem(tubearchivistWatchedYoutubeid)
 console.log('✅ every thing completed')
+  } catch (error) {
+    console.error('error in main ',error)
+  }
+    
 
 
 
