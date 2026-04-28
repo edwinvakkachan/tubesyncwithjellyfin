@@ -30,19 +30,28 @@ headers: {
         },
   })
 
-return res.data.player.watched
+return {
+   exists: true,
+    watched:res.data.player.watched}
 } catch (error) {
-  console.log('error in checkwatched',error)
+  if (error.response?.status === 404) {
+      console.log(`⚠️ Video not found in TubeArchivist: ${id}`);
+      return {
+        exists: false,
+        watched: false
+      };
+    }
+
 }
 }
 
 
 async function markTubeWatched(jellyId){
   for (const id of jellyId){
-    if(await checkwatched(id)){
-      // console.log('already watched ',id)
-      continue
-    }
+  const status = await checkwatched(id);
+
+    if (!status.exists) continue;
+    if (status.watched) continue;
 
 
     try {
