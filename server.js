@@ -131,9 +131,15 @@ async function tubearchivistWatchedDetails(){
     }
   });
   
- for (const value of res.data.data) {
-  youtubeid.push(value.youtube_id);
-}
+  for (let i=0;i<=res.data.data.length;i++){
+
+    for(const value of res.data.data){
+      
+      youtubeid.push(value.youtube_id)
+      
+    
+    }
+  }
 
 
 return youtubeid;
