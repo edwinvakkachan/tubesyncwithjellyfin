@@ -116,45 +116,47 @@ const idArray = [];
 }
 //--------------------------------------
 
-async function tubearchivistWatchedDetails(){
-  try {
-    const youtubeid=[];
-  const res = await axios.get(`${ipTube}/api/video/`, {
-    headers: {
+
+
+async function tubearchivistWatchedDetails() {
+  let page = 1;
+  let allIds = [];
+
+  while (true) {
+    const res = await axios.get(`${ipTube}/api/video/`, {
+       headers: {
           Authorization: `Token ${apiTube}`,
           "Content-Type": "application/json"
         },
-    params: {
-      sort:"downloaded",
-      watch:"watched",
+      params: {
+        watch: "watched",
+        sort: "downloaded",
+        order: "desc",
+        page
+      }
+    });
 
-    }
-  });
-  
-  for (let i=0;i<=res.data.data.length;i++){
+    const videos = res.data.data || [];
 
-    for(const value of res.data.data){
-      
-      youtubeid.push(value.youtube_id)
-      
-    
-    }
+    if (videos.length === 0) break;
+
+    allIds.push(...videos.map(v => v.youtube_id));
+
+    // console.log(`Fetched page ${page}: ${videos.length} videos`);
+
+    page++;
   }
 
-
-return youtubeid;
-  } catch (error) {
-    console.error('error in tubearchivistWatchedDetails',error)
-  }
-
+  return allIds;
 }
-
 
 async function pathContainsYoutubeId(path, youtubeId) {
   if (!path || !youtubeId) return false;
 
+// console.log('false',path,youtubeId)
   const pattern = new RegExp(`/${youtubeId}\\.(mp4|mkv|webm)?$`);
   return pattern.test(path);
+ 
 }
 
 async function jellyfinMarkAsWatched(itemId) {
@@ -163,8 +165,6 @@ async function jellyfinMarkAsWatched(itemId) {
     `${ip}/Users/18c88a40709b4222baa0eab02c68efe8/PlayedItems/${itemId}`,{},{
       headers: { "X-Emby-Token": api },
     });
-
-     console.log("✅ Marked as watched:");
   } catch (error) {
     console.error('error in jellyfinMArkAsWatched',error)
   }
@@ -178,7 +178,6 @@ async function findJellyfinItem(youtubeId) {
   params: {
     Recursive: true,
     mediaTypes:'Video',
-    IsPlayed: false,
     Fields: "Path",
   }
 });
@@ -187,9 +186,9 @@ const youtubeIdSet = new Set(youtubeId);
 for (const id of youtubeIdSet){
 for (const value of res.data.Items){
   if(await pathContainsYoutubeId(value.Path,id)){
-    if(!value.UserData.played){
+    if(!value.UserData.Played){
 
-      console.log(`marking ${value.Name} as played \n`);
+      console.log(`✅ marking ${value.Name} as played \n`);
       await jellyfinMarkAsWatched(value.UserData.ItemId)
        break;
       
