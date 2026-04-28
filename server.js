@@ -131,15 +131,9 @@ async function tubearchivistWatchedDetails(){
     }
   });
   
-  for (let i=0;i<=res.data.data.length;i++){
-
-    for(const value of res.data.data){
-      
-      youtubeid.push(value.youtube_id)
-      
-    
-    }
-  }
+ for (const value of res.data.data) {
+  youtubeid.push(value.youtube_id);
+}
 
 
 return youtubeid;
@@ -164,7 +158,7 @@ async function jellyfinMarkAsWatched(itemId) {
       headers: { "X-Emby-Token": api },
     });
 
-     console.log("✅ Marked as watched:", itemId);
+     console.log("✅ Marked as watched:");
   } catch (error) {
     console.error('error in jellyfinMArkAsWatched',error)
   }
@@ -188,7 +182,7 @@ for (const id of youtubeIdSet){
 for (const value of res.data.Items){
   if(await pathContainsYoutubeId(value.Path,id)){
     if(!value.UserData.played){
-      console.log(value.UserData.ItemId)
+
       console.log(`marking ${value.Name} as played \n`);
       await jellyfinMarkAsWatched(value.UserData.ItemId)
        break;
@@ -205,14 +199,15 @@ async function main(){
     console.log('started wait for 10sec ✅')
  const jellyfinWatchedyoutubeId =await jellyfinWatchedDetails();
 await markTubeWatched(jellyfinWatchedyoutubeId);
-console.log("marking jellyfin to tubearchivist complete ✅");
+console.log("marking jellyfin to tubearchivist completed ✅");
 
 await delay(400)
+console.log('started to marking tuberchivist to jellyfin');
 
 const tubearchivistWatchedYoutubeid = await tubearchivistWatchedDetails();
 
 await findJellyfinItem(tubearchivistWatchedYoutubeid)
-console.log('✅ every thing completed')
+console.log('✅ everything completed')
   } catch (error) {
     console.error('error in main ',error)
   }
