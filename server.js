@@ -1,26 +1,38 @@
-import axios from 'axios';
-import { jellyfinWatchedDetails, markTubeWatched } from './jobs/jellyfinTotubeArchivist.js';
-import { delay } from './utils/delay.js';
-import { tubearchivistWatchedDetails,findJellyfinItem } from './jobs/tubearchivistTojellyfin.js';
+import { jellyfinWatcher } from "./workers/jellyfinWatcher.js";
+import { tubeArchivistWatcher } from "./workers/tubeArchivistWatcher.js";
+import { syncWorker } from "./workers/syncWorker.js";
 
+import { delay } from "./utils/delay.js";
 
+async function main() {
 
+  while (true) {
 
+    try {
 
-async function main(){
-  try {
-    console.log('started wait for 10sec ✅')
- const jellyfinWatchedyoutubeId =await jellyfinWatchedDetails();
-await markTubeWatched(jellyfinWatchedyoutubeId);
-console.log("marking jellyfin to tubearchivist completed ✅");
+      console.log("\n========================");
+      console.log("🚀 sync cycle started");
+      console.log("========================\n");
 
-await delay(400)
-console.log('started to marking tuberchivist to jellyfin');
-const tubearchivistWatchedYoutubeid = await tubearchivistWatchedDetails();
-await findJellyfinItem(tubearchivistWatchedYoutubeid)
-console.log('✅ everything completed')
-  } catch (error) {
-    console.error('error in main ',error)
+      await jellyfinWatcher();
+
+      await tubeArchivistWatcher();
+
+      await syncWorker();
+
+      console.log("\n✅ cycle completed");
+
+    } catch (error) {
+
+      console.error(
+        "❌ error in main loop",
+        error
+      );
+    }
+
+    console.log("⏳ waiting 5 minutes...\n");
+
+    await delay(5 * 60 * 1000);
   }
 }
 

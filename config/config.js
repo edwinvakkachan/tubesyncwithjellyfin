@@ -1,12 +1,16 @@
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
+
 dotenv.config();
 
-const config ={
- ip : process.env.IP,
- api : process.env.APIjelly,
- userId:process.env.JELLYFIN_USER_ID,
- ipTube:process.env.IPtube,
- apiTube:process.env.APItube,
-}
+export default {
 
-export default config 
+  jellyfinUrl: process.env.JELLYFIN_URL,
+  jellyfinApi: process.env.JELLYFIN_API,
+  jellyfinUserId: process.env.JELLYFIN_USER_ID,
+
+  tubeUrl: process.env.TUBEARCHIVIST_URL,
+  tubeApi: process.env.TUBEARCHIVIST_API,
+
+  mongoUri: process.env.MONGO_URI,
+  dbName: process.env.DB_NAME
+};
