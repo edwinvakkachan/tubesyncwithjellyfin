@@ -1,9 +1,9 @@
-import { connectMongo } from "../db/mongo.js";
+
 import { getWatchedVideos } from "../services/jellyfinService.js";
+import pool from "../supabase/pool.js";
+
 
 export async function jellyfinWatcher() {
-
-  const db = await connectMongo();
 
   const watchedIds = await getWatchedVideos();
 
@@ -11,24 +11,16 @@ export async function jellyfinWatcher() {
 
     try {
 
-      await db.collection("syncJobs").updateOne(
-        {
-          youtubeId,
-          action: "markTubeWatched"
-        },
-        {
-          $setOnInsert: {
-            youtubeId,
-            action: "markTubeWatched",
-            status: "pending",
-            retries: 0,
-            createdAt: new Date()
-          }
-        },
-        {
-          upsert: true
-        }
-      );
+await pool.query(
+    `
+    INSERT INTO tubearchivistjellyfinsync (youtube_id)
+    VALUES ($1)
+    ON CONFLICT (youtube_id)
+    DO NOTHING
+    RETURNING *;
+    `,
+    [youtubeId]
+  );
 
     } catch (error) {
 
@@ -39,6 +31,6 @@ export async function jellyfinWatcher() {
   }
 
   console.log(
-    `✅ jellyfin watcher completed (${watchedIds.length})`
+    `✅ jellyfin watched videos sync to db complete (${watchedIds.length})`
   );
 }

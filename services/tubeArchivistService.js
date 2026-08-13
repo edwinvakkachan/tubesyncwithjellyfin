@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../config/config.js";
+import { delay } from "../utils/delay.js";
 
 export async function getTubeWatchedVideos() {
 
@@ -37,6 +38,7 @@ export async function getTubeWatchedVideos() {
 }
 
 export async function markTubeWatched(id) {
+  await delay(500,true)
 
   await axios.post(
     `${config.tubeUrl}/api/watched/`,

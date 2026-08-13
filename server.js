@@ -1,7 +1,7 @@
 import { jellyfinWatcher } from "./workers/jellyfinWatcher.js";
 import { tubeArchivistWatcher } from "./workers/tubeArchivistWatcher.js";
 import { syncWorker } from "./workers/syncWorker.js";
-
+import { initDB } from "./supabase/db.js";
 import { delay } from "./utils/delay.js";
 
 async function main() {
@@ -13,6 +13,7 @@ async function main() {
       console.log("\n========================");
       console.log("🚀 sync cycle started");
       console.log("========================\n");
+      await initDB();
 
       await jellyfinWatcher();
 

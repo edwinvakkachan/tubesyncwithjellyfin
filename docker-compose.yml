@@ -11,8 +11,7 @@ services:
     restart: unless-stopped
 
     environment:
-      MONGO_URI: ${MONGO_URI}
-      DB_NAME: ${DB_NAME}
+      DATABASE_URL: ${DATABASE_URL}
 
       JELLYFIN_URL: ${JELLYFIN_URL}
       JELLYFIN_API: ${JELLYFIN_API}

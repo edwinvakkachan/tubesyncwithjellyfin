@@ -1,4 +1,4 @@
-import { connectMongo } from "../db/mongo.js";
+import pool from "../supabase/pool.js";
 
 import {
   markTubeWatched,
@@ -21,94 +21,69 @@ function pathContainsYoutubeId(path, youtubeId) {
 
 export async function syncWorker() {
 
-  const db = await connectMongo();
 
-  const jobs = await db.collection("syncJobs")
-    .find({
-      status: "pending",
-      retries: { $lt: 10 }
-    })
-    .limit(20)
-    .toArray();
+  const jobs =  await pool.query(`
+  SELECT youtube_id
+  FROM tubearchivistjellyfinsync
+  WHERE tubewatched = FALSE
+`);
 
-  const jellyfinItems = await getAllJellyfinItems();
 
-  const tubeWatched = new Set(
-    await getTubeWatchedVideos()
-  );
 
-  for (const job of jobs) {
+  for (const job of jobs.rows) {
 
     try {
 
-      if (job.action === "markTubeWatched") {
-
-        if (!tubeWatched.has(job.youtubeId)) {
-
-          await markTubeWatched(job.youtubeId);
+          await markTubeWatched(job.youtube_id);
 
           console.log(
-            `✅ marked TubeArchivist watched ${job.youtubeId}`
+            `✅ marked TubeArchivist watched ${job.youtube_id}`
           );
-        }
-      }
 
-      if (job.action === "markJellyfinWatched") {
+      // if (job.action === "markJellyfinWatched") {
 
-        for (const item of jellyfinItems) {
+      //   for (const item of jellyfinItems) {
 
-          if (
-            pathContainsYoutubeId(
-              item.Path,
-              job.youtubeId
-            )
-          ) {
+      //     if (
+      //       pathContainsYoutubeId(
+      //         item.Path,
+      //         job.youtubeId
+      //       )
+      //     ) {
 
-            if (!item.UserData?.Played) {
+      //       if (!item.UserData?.Played) {
 
-              await markJellyfinWatched(item.Id);
+      //         await markJellyfinWatched(item.Id);
 
-              console.log(
-                `✅ marked Jellyfin watched ${job.youtubeId}`
-              );
-            }
+      //         console.log(
+      //           `✅ marked Jellyfin watched ${job.youtubeId}`
+      //         );
+      //       }
 
-            break;
-          }
-        }
-      }
+      //       break;
+      //     }
+      //   }
+      // }
 
-      await db.collection("syncJobs").updateOne(
-        {
-          _id: job._id
-        },
-        {
-          $set: {
-            status: "completed",
-            processedAt: new Date()
-          }
-        }
-      );
+      // await db.collection("syncJobs").updateOne(
+      //   {
+      //     _id: job._id
+      //   },
+      //   {
+      //     $set: {
+      //       status: "completed",
+      //       processedAt: new Date()
+      //     }
+      //   }
+      // );
 
     } catch (error) {
 
       console.error(error);
 
-      await db.collection("syncJobs").updateOne(
-        {
-          _id: job._id
-        },
-        {
-          $inc: {
-            retries: 1
-          },
-          $set: {
-            error: error.message
-          }
-        }
-      );
+
     }
   }
 
-  console.log(`✅ worker completed (${jobs.length})`);
+  console.log(`✅ worker completed (${jobs.rows.length})`);
 }
