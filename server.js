@@ -26,7 +26,7 @@ async function main() {
       );
 
       await delay (2000,true);
-      
+
       await syncWatchedItems(targetuserid,sourceuserid
 );
 
