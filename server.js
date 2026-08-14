@@ -4,7 +4,9 @@ import { syncWorker } from "./workers/syncWorker.js";
 import { initDB } from "./supabase/db.js";
 import { delay } from "./utils/delay.js";
 import { syncWatchedItems } from "./syncjellyfinUsers.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 async function main() {
 
