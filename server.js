@@ -19,16 +19,15 @@ async function main() {
       console.log("========================\n");
       await initDB();
 
-      await syncWatchedItems(
-  process.env.JELLYFIN_SOURCE_USER_ID,
-  process.env.JELLYFIN_TARGET_USER_ID
-);
+      
+      const targetuserid =  process.env.JELLYFIN_TARGET_USER_ID;
+      const sourceuserid = process.env.JELLYFIN_SOURCE_USER_ID
+      await syncWatchedItems(sourceuserid,targetuserid
+      );
 
-await delay (2000,true);
-
-await syncWatchedItems(
-  process.env.JELLYFIN_TARGET_USER_ID,
-  process.env.JELLYFIN_SOURCE_USER_ID
+      await delay (2000,true);
+      
+      await syncWatchedItems(targetuserid,sourceuserid
 );
 
 await delay (2000,true)
