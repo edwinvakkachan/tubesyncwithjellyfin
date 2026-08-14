@@ -3,6 +3,8 @@ import { tubeArchivistWatcher } from "./workers/tubeArchivistWatcher.js";
 import { syncWorker } from "./workers/syncWorker.js";
 import { initDB } from "./supabase/db.js";
 import { delay } from "./utils/delay.js";
+import { syncWatchedItems } from "./syncjellyfinUsers.js";
+
 
 async function main() {
 
@@ -15,11 +17,26 @@ async function main() {
       console.log("========================\n");
       await initDB();
 
+      await syncWatchedItems(
+  process.env.JELLYFIN_SOURCE_USER_ID,
+  process.env.JELLYFIN_TARGET_USER_ID
+);
+
+await delay (2000,true);
+
+await syncWatchedItems(
+  process.env.JELLYFIN_TARGET_USER_ID,
+  process.env.JELLYFIN_SOURCE_USER_ID
+);
+
+await delay (2000,true)
+
       await jellyfinWatcher();
 
       await tubeArchivistWatcher();
 
       await syncWorker();
+      
 
       console.log("\n✅ cycle completed");
 
