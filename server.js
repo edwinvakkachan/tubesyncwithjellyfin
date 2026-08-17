@@ -45,7 +45,6 @@ await delay (2000,true)
 
       console.error(
         "❌ error in main loop",
-        error
       );
     }
 

@@ -29,7 +29,7 @@ await pool.query(
     } catch (error) {
 
       if (error.code !== 11000) {
-        console.error(error);
+        console.error('tube archivist is not available');
       }
     }
   }
