@@ -37,20 +37,42 @@ export async function getTubeWatchedVideos() {
   return ids;
 }
 
-export async function markTubeWatched(id) {
-  await delay(500,true)
 
-  await axios.post(
-    `${config.tubeUrl}/api/watched/`,
-    {
-      id,
-      is_watched: true
-    },
-    {
-      headers: {
-        Authorization: `Token ${config.tubeApi}`,
-        "Content-Type": "application/json"
+export async function markTubeWatched(id) {
+  if (!id || typeof id !== "string") {
+    throw new Error(`Invalid YouTube video ID: ${id}`);
+  }
+
+  // await delay(500, true);
+
+  try {
+    const response = await axios.post(
+      `${config.tubeUrl}/api/watched/`,
+      {
+        id,
+        is_watched: true
+      },
+      {
+        headers: {
+          Authorization: `Token ${config.tubeApi}`,
+          "Content-Type": "application/json"
+        },
+        timeout: 15000
       }
-    }
-  );
+    );
+
+    console.log(`✅ TubeArchivist marked watched: ${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Failed to mark watched: ${id}`);
+    console.error("HTTP status:", error.response?.status ?? "No response");
+    console.error(
+      "Server response:",
+      typeof error.response?.data === "string"
+        ? error.response.data
+        : JSON.stringify(error.response?.data ?? error.message)
+    );
+
+    throw error;
+  }
 }

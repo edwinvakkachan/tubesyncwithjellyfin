@@ -5,12 +5,13 @@ import pool from "../supabase/pool.js";
 
 export async function jellyfinWatcher() {
 
+  console.log('jellyfinWatcher started');
   const watchedIds = await getWatchedVideos();
 
   for (const youtubeId of watchedIds) {
 
     try {
-
+console.log(youtubeId);
 await pool.query(
     `
     INSERT INTO tubearchivistjellyfinsync (youtube_id)

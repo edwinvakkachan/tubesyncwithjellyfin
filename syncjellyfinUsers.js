@@ -1,8 +1,8 @@
 import axios from "axios";
 import dotenv from "dotenv";
 
-dotenv.config();
 import { delay } from "./utils/delay.js";
+dotenv.config();
 
 export async function syncWatchedItems( sourceUserId, targetUserId) {
 
@@ -63,7 +63,7 @@ const destinationResponse = await axios.get(
     }
 
     try {
-await delay(500,true);
+await delay(100,true);
 await axios.post(
   `${process.env.JELLYFIN_URL}/Users/${targetUserId}/PlayedItems/${item.Id}`,
   {},

@@ -2,14 +2,14 @@ import pool from "../supabase/pool.js";
 import { getTubeWatchedVideos } from "../services/tubeArchivistService.js";
 
 export async function tubeArchivistWatcher() {
-
+console.log('tubeArchivistWatcher started');
 
   const watchedIds = await getTubeWatchedVideos();
 
   for (const youtubeId of watchedIds) {
 
     try {
-
+console.log(youtubeId);
 await pool.query(
     `INSERT INTO tubearchivistjellyfinsync (
     youtube_id,
