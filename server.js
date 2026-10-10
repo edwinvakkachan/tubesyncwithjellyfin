@@ -12,41 +12,58 @@ async function main() {
 
   while (true) {
 
-    try {
+async function runTask(name, task) {
+  try {
+    console.log(`\n▶️ Starting: ${name}`);
+    await task();
+    console.log(`✅ Completed: ${name}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed: ${name}`);
+    console.error(`   Error: ${error.message}`);
+    return false;
+  }
+}
 
-      console.log("\n========================");
-      console.log("🚀 sync cycle started");
-      console.log("========================\n");
-      await initDB();
+try {
+  console.log("\n========================");
+  console.log("🚀 SYNC CYCLE STARTED");
+  console.log("========================\n");
 
-      
-      const targetuserid =  process.env.JELLYFIN_TARGET_USER_ID;
-      const sourceuserid = process.env.JELLYFIN_SOURCE_USER_ID
-      await syncWatchedItems(sourceuserid,targetuserid
-      );
+  await runTask("Initialize database", () => initDB());
 
-      await delay (2000,true);
+  const targetuserid = process.env.JELLYFIN_TARGET_USER_ID;
+  const sourceuserid = process.env.JELLYFIN_SOURCE_USER_ID;
 
-      await syncWatchedItems(targetuserid,sourceuserid
-);
+  await runTask(
+    "Sync source Jellyfin to target Jellyfin",
+    () => syncWatchedItems(sourceuserid, targetuserid)
+  );
 
-await delay (2000,true)
+  await delay(2000, true);
 
-      await jellyfinWatcher();
+  await runTask(
+    "Sync target Jellyfin to source Jellyfin",
+    () => syncWatchedItems(targetuserid, sourceuserid)
+  );
 
-      await tubeArchivistWatcher();
+  await delay(2000, true);
 
-      await syncWorker();
-      
+  await runTask("Jellyfin watcher", () => jellyfinWatcher());
 
-      console.log("\n✅ cycle completed");
+  await runTask(
+    "TubeArchivist watcher",
+    () => tubeArchivistWatcher()
+  );
 
-    } catch (error) {
+  await runTask("Sync worker", () => syncWorker());
 
-      console.error(
-        "❌ error in main loop",
-      );
-    }
+  console.log("\n✅ SYNC CYCLE FINISHED");
+
+} catch (error) {
+  console.error("❌ Unexpected main-loop error:", error.message);
+}
+
 
     console.log("⏳ waiting 5 minutes...\n");
 
