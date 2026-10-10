@@ -1,6 +1,4 @@
 import { jellyfinWatcher } from "./workers/jellyfinWatcher.js";
-import { tubeArchivistWatcher } from "./workers/tubeArchivistWatcher.js";
-import { syncWorker } from "./workers/syncWorker.js";
 import { initDB } from "./supabase/db.js";
 import { delay } from "./utils/delay.js";
 import { syncWatchedItems } from "./syncjellyfinUsers.js";
@@ -10,7 +8,6 @@ dotenv.config();
 
 async function main() {
 
-  while (true) {
 
 async function runTask(name, task) {
   try {
@@ -51,24 +48,13 @@ try {
 
   await runTask("Jellyfin watcher", () => jellyfinWatcher());
 
-  await runTask(
-    "TubeArchivist watcher",
-    () => tubeArchivistWatcher()
-  );
-
-  await runTask("Sync worker", () => syncWorker());
 
   console.log("\n✅ SYNC CYCLE FINISHED");
-
+  process.exit(0)
 } catch (error) {
   console.error("❌ Unexpected main-loop error:", error.message);
 }
 
-
-    console.log("⏳ waiting 5 minutes...\n");
-
-    await delay(5 * 60 * 1000);
-  }
 }
 
 main();
